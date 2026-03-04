@@ -1,10 +1,10 @@
 from circleshape import CircleShape
-import constants
+from constants import PLAYER_RADIUS, LINE_WIDTH, PLAYER_TURN_SPEED, PLAYER_SPEED
 import pygame
 
 class Player(CircleShape):
     def __init__(self,x,y):
-        super().__init__(x,y,constants.PLAYER_RADIUS)
+        super().__init__(x, y, PLAYER_RADIUS)
         self.rotation = 0
 
     # in the Player class
@@ -19,4 +19,32 @@ class Player(CircleShape):
     # override draw method form Circleshape
     
     def draw(self, screen):
-        pygame.draw.polygon(screen, 'white', self.triangle(), constants.LINE_WIDTH)
+        pygame.draw.polygon(screen, 'white', self.triangle(), LINE_WIDTH)
+
+    # Rotate ship
+
+    def rotate(self, dt):
+        self.rotation += (PLAYER_TURN_SPEED * dt)
+
+    def update(self, dt):
+        keys = pygame.key.get_pressed()
+        
+        if keys[pygame.K_a]:
+            # Rotate Left
+            self.rotate(dt)
+        if keys[pygame.K_d]:
+            # Negative dt rotates right
+            self.rotate(-dt)
+        if keys[pygame.K_w]:
+            # Rotate Left
+            self.move(dt)
+        if keys[pygame.K_s]:
+            # Negative dt rotates right
+            self.move(-dt)
+        
+    
+    def move(self, dt):
+        unit_vector = pygame.Vector2(0, 1)
+        rotated_vector = unit_vector.rotate(self.rotation)
+        rotated_with_speed_vector = rotated_vector * PLAYER_SPEED * dt
+        self.position += rotated_with_speed_vector
